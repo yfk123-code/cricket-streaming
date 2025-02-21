@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Cricket Streaming</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-40">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="w-full max-w-4xl">
+                <div class="flex justify-end mb-2">
+                    <button onclick="closeVideoModal()" class="text-white text-xl">&times; Close</button>
+                </div>
+                <div class="relative" style="padding-top: 56.25%">
+                    <iframe id="videoFrame" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bg-green-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Cricket Live Streams</h1>
+            <button onclick="fetchMatches()" class="bg-green-700 px-4 py-2 rounded">Refresh Matches</button>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Today's Matches Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Today's Matches</h2>
+            <div id="liveMatches" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Match Cards will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Ad Space -->
+        <div class="bg-gray-200 p-4 mb-8 text-center">
+            <p class="text-gray-600">Advertisement Space</p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Cricket Live Streams. All rights reserved.</p>
+            <p class="mt-2 text-gray-400">Disclaimer: We do not host any streams. Links are provided by third parties.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
