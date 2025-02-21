@@ -1,8 +1,8 @@
 // config.js
 const config = {
-  API_KEY: 'AIzaSyDuaFrtqW_rU_xTqOE22JyLrBan4OttiAM', // Google Sheets API Key
-  SHEET_ID: '14p7uHj8Utrg3J4FuOsmQtWWohqnd3uG0-BLViMRR3RA', // Google Sheet ID
-  SHEET_NAME: 'Sheet1' // Sheet Name (change if different)
+  API_KEY: import.meta.env.VITE_API_KEY, // Environment variable se API Key
+  SHEET_ID: import.meta.env.VITE_SHEET_ID, // Environment variable se Sheet ID
+  SHEET_NAME: import.meta.env.VITE_SHEET_NAME || 'Sheet1' // Environment variable se Sheet Name (fallback: 'Sheet1')
 };
 
 export default config;
