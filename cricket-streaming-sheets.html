@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Cricket Streaming</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-green-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Cricket Live Streams</h1>
+            <div class="flex space-x-4">
+                <a href="SHEET_URL" target="_blank" class="bg-green-700 px-4 py-2 rounded">Update Matches</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Live Matches Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Live Matches</h2>
+            <div id="liveMatches" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Live matches will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Ad Space -->
+        <div class="bg-gray-200 p-4 mb-8 text-center">
+            <p class="text-gray-600">Advertisement Space</p>
+        </div>
+
+        <!-- Upcoming Matches Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Upcoming Matches</h2>
+            <div id="upcomingMatches" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Upcoming matches will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-40">
+        <div class="container mx-auto px-4 h-full flex items-center justify-center">
+            <div class="w-full max-w-4xl">
+                <div class="flex justify-end mb-2">
+                    <button onclick="closeVideoModal()" class="text-white text-xl">&times; Close</button>
+                </div>
+                <div class="relative" style="padding-top: 56.25%">
+                    <iframe id="videoFrame" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Cricket Live Streams. All rights reserved.</p>
+            <p class="mt-2 text-gray-400">Disclaimer: We do not host any streams. Links are provided by third parties.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Replace with your Google Sheet ID and Sheet Name
+        const SHEET_ID = '14p7uHj8Utrg3J4FuOsmQtWWohqnd3uG0-BLViMRR3RA';
+        const SHEET_NAME = 'Sheet1';
+        const API_KEY = 'AIzaSyBA0FxVcEei5GxUScmJVVggsPcYYcSqesI';
+
+        // Fetch matches from Google Sheet
+        async function fetchMatches() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const rows = data.values;
+                
+                // Remove header row
+                const headers = rows[0];
+                const matches = rows.slice(1).map(row => {
+                    const match = {};
+                    headers.forEach((header, index) => {
+                        match[header] = row[index] || '';
+                    });
+                    return match;
+                });
+
+                displayMatches(matches);
+            } catch (error) {
+                console.error('Error fetching matches:', error);
+            }
+        }
+
+        // Display matches in appropriate sections
+        function displayMatches(matches) {
+            const liveMatches = matches.filter(match => match.status === 'live');
+            const upcomingMatches = matches.filter(match => match.status === 'upcoming');
+
+            document.getElementById('liveMatches').innerHTML = liveMatches
+                .map(match => createMatchCard(match))
+                .join('');
+
+            document.getElementById('upcomingMatches').innerHTML = upcomingMatches
+                .map(match => createMatchCard(match))
+                .join('');
+        }
+
+        // Create HTML for match card
+        function createMatchCard(match) {
+            const streams = [match.stream_link1, match.stream_link2, match.stream_link3]
+                .filter(link => link);
+
+            return `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="${match.poster_url}" alt="Match Poster" 
+                         class="w-full h-48 object-cover"
+                         onerror="this.src='/api/placeholder/400/200'">
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="${match.status === 'live' ? 'text-red-600' : 'text-blue-600'} font-semibold">
+                                ${match.status === 'live' ? 'LIVE NOW' : 'UPCOMING'}
+                            </span>
+                        </div>
+                        <h3 class="font-bold mb-2">${match.team1} vs ${match.team2}</h3>
+                        <p class="text-gray-600 mb-4">${new Date(match.match_time).toLocaleString()}</p>
+                        ${match.status === 'live' ? createStreamButtons(streams) : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Create HTML for stream buttons
+        function createStreamButtons(streams) {
+            return streams.map((stream, index) => `
+                <button onclick="playVideo('${stream}')" 
+                        class="w-full mb-2 bg-${index === 0 ? 'blue' : 'green'}-600 text-white text-center py-2 rounded hover:bg-${index === 0 ? 'blue' : 'green'}-700">
+                    Stream ${index + 1} - ${index === 0 ? 'HD' : 'SD'}
+                </button>
+            `).join('');
+        }
+
+        // Video player functions
+        function playVideo(url) {
+            document.getElementById('videoFrame').src = url;
+            document.getElementById('videoModal').classList.remove('hidden');
+        }
+
+        function closeVideoModal() {
+            document.getElementById('videoFrame').src = '';
+            document.getElementById('videoModal').classList.add('hidden');
+        }
+
+        // Auto-refresh matches every 5 minutes
+        fetchMatches();
+        setInterval(fetchMatches, 300000);
+    </script>
+</body>
+</html>
